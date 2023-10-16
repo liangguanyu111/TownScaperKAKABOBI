@@ -27,6 +27,7 @@ public class Grid
     public readonly List<vertex_center> centerVertices = new List<vertex_center>();
     public readonly List<vertex_Mid> midVertices = new List<vertex_Mid> ();
     public readonly List<SubQuad_Cube> subQuadCubes = new List<SubQuad_Cube>();
+    public readonly List<vertex_Y> vertexYList = new List<vertex_Y>();
     public Grid(int radius, float cellSize,float cellHeight,int height,int smoothTime)
     {
         Grid.radius = radius;
@@ -190,11 +191,15 @@ public class Grid
         {
             vertex.Smooth();
         }
+
+        foreach(var subquad in subquads)
+        {
+            subquad.GetArrowPos();
+        }
     }
 
     public void Build3dGrid()
     {
-        List<vertex_Y> vertexYList = new List<vertex_Y>();
         for (int i = 0; i < height; i++)
         {
             foreach (var vertex in allVetices)
@@ -204,7 +209,7 @@ public class Grid
                 vertexYList.Add(newVertexY);
             }
         }
-        allVetices.AddRange(vertexYList);
+        //allVetices.AddRange(vertexYList);
     }
 
     public void BuildCube()

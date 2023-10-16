@@ -9,12 +9,35 @@ public class SubQuad
     public readonly vertex_center c;
     public readonly vertex_Mid d;
 
+
+    public readonly Vector3[] arrowPos = new Vector3[4];
     public SubQuad(vertex_Hex a,vertex_Mid b,vertex_center c, vertex_Mid d)
     {
         this.a = a;
         this.b = b;
         this.c = c;
-        this.d = d;
+        this.d = d; 
+    }
+
+    public Vector3 GetCenterPos()
+    {
+        Vector3 centerPos = Vector3.zero;
+        centerPos += a.currentPosition + b.currentPosition + c.currentPosition + d.currentPosition;
+        centerPos /= 4;
+        return centerPos;
+    }
+
+    public void GetArrowPos()
+    {
+        Vector3 dierectionA =  a.currentPosition - GetCenterPos();
+        arrowPos[0] = a.currentPosition - dierectionA * 0.4f;
+        Vector3 dierectionB = b.currentPosition - GetCenterPos();
+        arrowPos[1] = b.currentPosition - dierectionB * 0.4f;
+        Vector3 dierectionC = c.currentPosition - GetCenterPos();
+        arrowPos[2] = c.currentPosition - dierectionC * 0.4f;
+        Vector3 dierectionD = d.currentPosition - GetCenterPos();
+        arrowPos[3] = d.currentPosition - dierectionD * 0.4f;
+
     }
     public void CaculateSmooth()
     {
@@ -47,6 +70,8 @@ public class SubQuad_Cube
     public vertex[] vertices = new vertex[8];
     public Vector3 centerPos;
     public string bitValue;
+
+    public Slot slot;
     public SubQuad_Cube(SubQuad subQuad,int y)
     {
         this.subQuad = subQuad;
@@ -61,6 +86,12 @@ public class SubQuad_Cube
         vertices[6] = subQuad.c.vertex_Ys[y];
         vertices[7] = subQuad.d.vertex_Ys[y];
 
+        UpdateBitValue();
+        foreach (var vertex in vertices)
+        {
+            vertex.OnVertexStatusChange += UpdateBitValue;
+            vertex.OnVertexStatusChange += UpdateSlot;
+        }
         centerPos = GetCenterPos();
     }
 
@@ -86,6 +117,37 @@ public class SubQuad_Cube
             else
             {
                 bitValue += "0";
+            }
+        }
+    }
+
+    public void UpdateSlot()
+    {
+        if(slot==null)
+        {
+            if(bitValue!="00000000"&& bitValue!= "11111111")
+            {
+                slot = new GameObject("Slot", typeof(Slot)).GetComponent<Slot>();
+                slot.name = bitValue;
+                slot.transform.position = centerPos;
+                Material newMaterial = Resources.Load<Material>("Material/Slot");
+                slot.Intialize(this, newMaterial);
+                slot.UpdateModule(slot.possibleModules[0]);
+            }
+        }
+        else 
+        {
+           if(bitValue == "00000000" && bitValue == "11111111")
+           {
+                slot.name = bitValue;
+                GameObject.Destroy(slot.gameObject);
+                Resources.UnloadUnusedAssets();
+           }
+           else
+            {
+                slot.name = bitValue;
+                slot.ReSetPossibleModules();
+                slot.UpdateModule(slot.possibleModules[0]);
             }
         }
     }

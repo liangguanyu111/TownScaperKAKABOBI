@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class vertex
 {
@@ -20,7 +21,16 @@ public class vertex
         // Debug.Log("Î»ÒÆ²î :" + offset);
         currentPosition = initPos + offset;
     }
+    public Action OnVertexStatusChange;
     
+    public void SetVertexStatus(bool value)
+    {
+        if(value!=isActive)
+        {
+            isActive = value;
+            OnVertexStatusChange?.Invoke();
+        }
+    }
 }
 public class Coord
 {
